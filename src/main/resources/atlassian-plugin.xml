@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<atlassian-plugin key="${project.groupId}.${project.artifactId}" name="${project.name}" plugins-version="2">
+  <plugin-info>
+    <description>${project.description}</description>
+    <version>${project.version}</version>
+    <vendor name="${project.organization.name}" url="${project.organization.url}"/>
+  </plugin-info>
+  <webwork1 key="reminder-webwork-module" name="Reminder Webwork Module" i18n-name-key="reminder-webwork-module.name">
+    <description key="reminder-webwork-module.description">The Reminder Webwork Module Plugin</description>
+    <actions>
+      <action name="sbt.jira.plugins.webwork.ReminderWebworkModuleAction" alias="ReminderWebworkModuleAction">
+        <view name="input">/templates/reminder-webwork-module/input.vm</view>
+        <view name="error">/templates/reminder-webwork-module/input.vm</view>
+      </action>
+    </actions>
+  </webwork1>
+  <resource type="i18n" name="i18n" location="atlassian-plugin"/>
+  <web-item name="Remind Me Item" i18n-name-key="remind-me-item.name" key="remind-me-item" section="operations-top-level" weight="15">
+    <description key="remind-me-item.description">The Remind Me Item Plugin</description>
+    <styleClass>issueaction-remind-issue</styleClass>
+    <label key="remind-me-item.label"></label>
+    <link linkId="remind-me-item-link">/secure/ReminderWebworkModuleAction!default.jspa?id=${issue.id}</link>
+    <tooltip key="remind-me-item.tooltip"></tooltip>
+  </web-item>
+  <web-resource name="My Web Resource" i18n-name-key="my-web-resource.name" key="my-web-resource">
+  	<transformation extension="js">
+            <transformer key="jsI18n"/>
+        </transformation>
+    <description key="my-web-resource.description">The My Web Resource Plugin</description>
+    <resource name="reminder.js" type="download" location="javascript/reminder.js">
+      <param name="content-type" value="text/javascript"/>
+    </resource>
+    <dependency>confluence.web.resources:ajs</dependency>
+    <context>atl.general</context>
+  </web-resource>
+  <ao key="ao-module">
+    <description>The module configuring the Active Objects service used by this plugin</description>
+    <entity>sbt.jira.puglins.entities.Reminder</entity>
+  </ao>
+  <component-import key="ao" name="Active Objects service" interface="com.atlassian.activeobjects.external.ActiveObjects">
+      <description>Component to access Active Objects functionality from the plugin</description>
+  </component-import>
+  <component key="tx-processor" name="Transactional Annotation Processor" class="com.atlassian.activeobjects.external.TransactionalAnnotationProcessor">
+      <decription>Processes @Transactional annotations.</decription>
+  </component>
+  <component key="reminder-service" name="Reminder Service" class="sbt.jira.plugins.ReminderServiceImpl"/>
+</atlassian-plugin>

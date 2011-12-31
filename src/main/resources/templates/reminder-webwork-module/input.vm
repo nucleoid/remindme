@@ -1,0 +1,54 @@
+<html>
+<head>
+    <title>$action.getText('reminder-webwork-module.reminder.issue')</title>
+    #if (${action.issueObject})
+        <meta name="decorator" content="issueaction" />
+    #else
+        <meta name="decorator" content="message" />
+    #end
+</head>
+<body>
+#if(${action.issueObject})
+    <form action="ReminderWebworkModuleAction.jspa" class="aui" id="reminder-issue" method="post">
+        <div class="form-body">
+            <div class="hidden">
+                <input name="atl_token" type="hidden" value="${action.xsrfToken}">
+            </div>
+            <h2 class="dialog-title">$action.getText('reminder-webwork-module.remind')</h2>
+            <small>$action.getText('reminder-webwork-module.title.description')</small>
+            <div class="hidden">
+                <input name="id" type="hidden" value="${action.id}">
+                <input name="returnUrl" type="hidden" value="${action.returnUrl}">
+            </div>
+            <fieldset>
+                <legend><span>${action.getText('reminder-webwork-module.remind.details')}</span></legend>
+                <div class="field-group">
+                    <label for="comment">
+                        Comment
+                        <span class="aui-icon icon-required"></span>
+                    </label>
+                    <textarea id="comment" name="comment"></textarea>
+                </div>
+            </fieldset>
+        </div>
+
+        <div class="buttons-container form-footer">
+            <div class="buttons">
+                <input accesskey="s" class="button" id="remind-issue-submit" name="Remind" title="Press Ctrl+Alt+s to submit this form" type="submit" value="Remind">
+                <a accesskey="`" class="cancel" href="/browse/${action.issue.key}" id="remind-issue-cancel" title="Press Ctrl+Alt+` to cancel">Cancel</a>
+            </div>
+        </div>
+    </form>
+#else
+<div class="remove-me">
+    <h1>${action.getText('common.words.error')}</h1>
+    <div class="aui-message error"><span class="aui-icon icon-error"></span>
+        #foreach($message in $action.flushedErrorMessages)
+            <p>$message</p>
+        #end
+    </div>
+</div>
+
+#end
+</body>
+</html>
