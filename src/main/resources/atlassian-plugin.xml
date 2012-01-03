@@ -6,6 +6,13 @@
     <version>${project.version}</version>
     <vendor name="${project.organization.name}" url="${project.organization.url}"/>
   </plugin-info>
+  <ao key="ao-module">
+    <description>The module configuring the Active Objects service used by this plugin</description>
+    <entity>sbt.jira.plugins.entities.Reminder</entity>
+  </ao>
+  <component-import key="ao" name="Active Objects service" interface="com.atlassian.activeobjects.external.ActiveObjects">
+      <description>Component to access Active Objects functionality from the plugin</description>
+  </component-import>
   <webwork1 key="reminder-webwork-module" name="Reminder Webwork Module" i18n-name-key="reminder-webwork-module.name">
     <description key="reminder-webwork-module.description">The Reminder Webwork Module Plugin</description>
     <actions>
@@ -34,15 +41,14 @@
     <dependency>confluence.web.resources:ajs</dependency>
     <context>atl.general</context>
   </web-resource>
-  <ao key="ao-module">
-    <description>The module configuring the Active Objects service used by this plugin</description>
-    <entity>sbt.jira.puglins.entities.Reminder</entity>
-  </ao>
-  <component-import key="ao" name="Active Objects service" interface="com.atlassian.activeobjects.external.ActiveObjects">
-      <description>Component to access Active Objects functionality from the plugin</description>
-  </component-import>
   <component key="tx-processor" name="Transactional Annotation Processor" class="com.atlassian.activeobjects.external.TransactionalAnnotationProcessor">
       <decription>Processes @Transactional annotations.</decription>
   </component>
   <component key="reminder-service" name="Reminder Service" class="sbt.jira.plugins.ReminderServiceImpl"/>
+  <customfield-type key="reminderdisplay" name="Reminder Viewing" class="sbt.jira.plugins.ReminderCFType">
+    <description>Calculated type for viewing reminders</description>
+    <resource type="velocity" name="view" location="templates/view-reminders.vm"/>
+    <resource type="velocity" name="edit" location="templates/view-all-reminders.vm"/>
+    <resource type="velocity" name="xml" location="templates/xml-reminders.vm"/>
+  </customfield-type>
 </atlassian-plugin>

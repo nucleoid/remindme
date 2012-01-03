@@ -14,22 +14,65 @@
             <div class="hidden">
                 <input name="atl_token" type="hidden" value="${action.xsrfToken}">
             </div>
-            <h2 class="dialog-title">$action.getText('reminder-webwork-module.remind')</h2>
-            <small>$action.getText('reminder-webwork-module.title.description')</small>
+            <h2 class="dialog-title">$action.getText('reminder-webwork-module.remind')<br /><small>$action.getText('reminder-webwork-module.title.description')</small></h2>
             <div class="hidden">
                 <input name="id" type="hidden" value="${action.id}">
-                <input name="returnUrl" type="hidden" value="${action.returnUrl}">
             </div>
+            <div id="left-side" style="float: left; margin-top:0;">
+            <h4>Current Reminders</h4>
+           	#if ($action.displayCurrentReminders)
+		        <table class="aui">
+		        	<thead>
+		        		<tr>
+		        			<th id="user">User</th>
+		        			<th id="remindDate">Reminder Date</th>
+		        		</tr>
+		        	</thead>
+		        	<tbody>
+		        		#foreach ($reminder in $action.currentReminders)
+		        			<tr>
+					            <td headers="user">$reminder.assigneeId</td>
+					            <td headers="remindDate">$!reminder.reminderDate ${action.formatTimestamp($reminder.reminderDate)}</td>
+					        </tr>
+				        #end
+		        	</tbody>
+		        </table>
+			#else
+		        There are currently no reminders <br />
+		        associated with this issue.
+		    #end
+            </div>
+            <div id="right-side" style="float: right; margin-top:0;">
             <fieldset>
                 <legend><span>${action.getText('reminder-webwork-module.remind.details')}</span></legend>
+                
+                <div class="field-group">
+                	<label for="assigneeId">
+                        Remind Who
+                        <span class="aui-icon icon-required"></span>
+                    </label>
+                	<div class="ajax_autocomplete" id="assigneeId_container">
+						#userPicker($action "assigneeId" "" false $null " width: 30%;" true 10)
+					</div>
+                </div>
+                <div class="field-group">
+                	<label for="reminderDate">
+                        Reminder Date
+                        <span class="aui-icon icon-required"></span>
+                    </label>
+    				<input class="text medium-field form-field-datepicker" id="reminderDate" name="reminderDate" type="text" value="#esc($!reminderDate)" />
+    				<img id="reminderDate_trigger" src="/jira/images/icons/cal.gif" width="16" height="16" border="0" alt="Pick a date"/>
+                </div>
+                
                 <div class="field-group">
                     <label for="comment">
                         Comment
-                        <span class="aui-icon icon-required"></span>
+                        <span class="aui-icon"></span>
                     </label>
                     <textarea id="comment" name="comment"></textarea>
                 </div>
             </fieldset>
+            </div>
         </div>
 
         <div class="buttons-container form-footer">
@@ -39,6 +82,17 @@
             </div>
         </div>
     </form>
+    <script type="text/javascript">
+    	Calendar.setup({
+			firstDay : 0,
+			inputField : 'reminderDate',
+			button : 'reminderDate_trigger',
+			align : 'Br',
+			singleClick : true,
+			useISO8601WeekNumbers : false,
+			ifFormat : '%m/%d/%Y'
+		});
+    </script>
 #else
 <div class="remove-me">
     <h1>${action.getText('common.words.error')}</h1>
@@ -48,7 +102,6 @@
         #end
     </div>
 </div>
-
 #end
 </body>
 </html>

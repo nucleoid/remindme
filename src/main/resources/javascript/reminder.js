@@ -8,10 +8,11 @@ AJS.$(function () {
         }
     };
  
-    JIRA.Dialogs.scheduleIssue = new JIRA.FormDialog({
+    JIRA.Dialogs.remindIssue = new JIRA.FormDialog({
         id: "reminder-dialog",
         trigger: "a.issueaction-remind-issue",
         ajaxOptions: JIRA.Dialogs.getDefaultAjaxOptions,
+        width: 625,
         onSuccessfulSubmit : function(){ 
         },
         onDialogFinished : function(){ 

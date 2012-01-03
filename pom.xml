@@ -82,6 +82,12 @@
       <scope>provided</scope>
     </dependency>
     <dependency>
+      <groupId>com.atlassian.activeobjects</groupId>
+      <artifactId>activeobjects-jira-spi</artifactId>
+      <version>${ao.version}</version>
+      <scope>provided</scope>
+    </dependency>
+    <dependency>
       <groupId>com.atlassian.sal</groupId>
       <artifactId>sal-api</artifactId>
       <version>2.4.1</version>
@@ -103,7 +109,7 @@
   <properties>
     <amps.version>3.7.2</amps.version>
     <jira.version>5.0-rc2</jira.version>
-    <ao.version>0.9.6</ao.version>
+    <ao.version>0.19.1.1</ao.version>
   </properties>
 </project>
 

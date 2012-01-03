@@ -4,6 +4,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 
+import java.sql.DatabaseMetaData;
 import java.sql.Timestamp;
 import java.util.List;
 
@@ -68,9 +69,7 @@ public class ReminderServiceImplTest
 	}
 
 	@Test
-	public void testFindByIssueId() { 
-        ao.migrate(Reminder.class);
- 
+	public void testFindByIssueId() {       
         assertEquals(2, ao.find(Reminder.class).length);
  
         ao.flushAll();
@@ -85,8 +84,6 @@ public class ReminderServiceImplTest
 
 	@Test
 	public void testCountByIssueId() {
-        ao.migrate(Reminder.class);
- 
         assertEquals(2, ao.find(Reminder.class).length);
 
         ao.flushAll();
@@ -101,7 +98,7 @@ public class ReminderServiceImplTest
         public void update(EntityManager em) throws Exception
         {
             em.migrate(Reminder.class);
- 
+            
             final Reminder reminder = em.create(Reminder.class);
     		reminder.setIssueId(ISSUE_ID);
     		reminder.setAssigneeId(ASSIGNEE_ID);

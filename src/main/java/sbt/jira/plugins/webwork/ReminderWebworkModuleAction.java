@@ -1,6 +1,10 @@
 package sbt.jira.plugins.webwork;
 
 import java.sql.Timestamp;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
+import java.util.List;
 
 import org.ofbiz.core.entity.GenericValue;
 
@@ -19,13 +23,14 @@ public class ReminderWebworkModuleAction extends JiraWebActionSupport
 	private final IssueService issueService;
 	private final ReminderService reminderService;
     private final JiraAuthenticationContext authenticationContext;
-
+    private final WebResourceManager webResourceManager;
+    
     private Long id;
     private String assigneeId;
     private Timestamp reminderDate;
     private String comment;
     
-    private final WebResourceManager webResourceManager;
+    private List<Reminder> currentReminders;
 
     public ReminderWebworkModuleAction(IssueService issueService, JiraAuthenticationContext authenticationContext, WebResourceManager webResourceManager, ReminderService reminderService)
     {
@@ -33,7 +38,6 @@ public class ReminderWebworkModuleAction extends JiraWebActionSupport
         this.authenticationContext = authenticationContext;
         this.webResourceManager = webResourceManager;
         this.reminderService = reminderService;
-
     }
 
     protected void doValidation()
@@ -66,6 +70,9 @@ public class ReminderWebworkModuleAction extends JiraWebActionSupport
 
     private void includeResources() {
         webResourceManager.requireResource("jira.webresources:jira-fields");
+        webResourceManager.requireResource("jira.webresources:autocomplete");
+        webResourceManager.requireResource("jira.webresources:calendar");
+        webResourceManager.requireResource("jira.webresources:calendar-en");
     }
 
     public GenericValue getProject()
@@ -109,8 +116,15 @@ public class ReminderWebworkModuleAction extends JiraWebActionSupport
         return reminderDate;
     }
 
-    public void setReminderDate(Timestamp reminderDate) {
-        this.reminderDate = reminderDate;
+    public void setReminderDate(String reminderDate) {
+    	SimpleDateFormat sdf = new SimpleDateFormat("MM/dd/yyyy");
+    	java.util.Date date;
+		try {
+			date = sdf.parse(reminderDate);
+		} catch (ParseException e) {
+			date = Calendar.getInstance().getTime();
+		}
+        this.reminderDate =  new Timestamp(date.getTime());
     }
     
     public String getComment() {
@@ -119,5 +133,21 @@ public class ReminderWebworkModuleAction extends JiraWebActionSupport
 
     public void setComment(String comment) {
         this.comment = comment;
+    }
+    
+    public List<Reminder> getCurrentReminders(){
+    	if(currentReminders == null)
+    		currentReminders = reminderService.findByIssueId(getIssue().getId());
+    	return currentReminders;
+    }
+    
+    public boolean isDisplayCurrentReminders() {
+    	return getCurrentReminders().size() > 0;
+    }
+    
+    public String formatTimestamp(Timestamp date){
+    	if(date != null)
+    		return new SimpleDateFormat("yyyy/MM/dd").format(date);
+    	return "N/A";
     }
 }

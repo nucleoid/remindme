@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import net.java.ao.Query;
 import sbt.jira.plugins.entities.Reminder;
 
 import com.atlassian.activeobjects.external.ActiveObjects;
@@ -31,11 +32,11 @@ public class ReminderServiceImpl implements ReminderService
 
 	@Override
 	public List<Reminder> findByIssueId(Long issueId) {
-		return new ArrayList<Reminder>(Arrays.asList(ao.find(Reminder.class, "issueId = ?", issueId)));
+		return new ArrayList<Reminder>(Arrays.asList(ao.find(Reminder.class, Query.select().where("issue_id = ?", issueId))));
 	}
 
 	@Override
 	public int countByIssueId(Long issueId) {
-		return ao.count(Reminder.class, "issueId = ?", issueId);
+		return ao.count(Reminder.class, Query.select().where("issue_id = ?", issueId));
 	}
 }
