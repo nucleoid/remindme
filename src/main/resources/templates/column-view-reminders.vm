@@ -3,4 +3,4 @@
 #else
 #set ($displayValue = 'N/A')
 #end
-<span id="reminders-val" class="value">$!displayValue</span>
+<p class="reminders">$!displayValue</p>

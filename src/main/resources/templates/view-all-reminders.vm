@@ -4,5 +4,5 @@
 #else
 #set ($displayValue = 'N/A')
 #end
-<span>$!displayValue</span>
+<span id="reminders-val" class="value">$!displayValue</span>
 #controlFooter ($action $fieldLayoutItem.fieldDescription $fieldLayoutItem.required $displayParameters.noHeader)

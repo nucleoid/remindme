@@ -12,4 +12,7 @@ public interface ReminderService {
 	Reminder add(Long issueId, String assigneeId, Timestamp reminderDate, String comment);
 	List<Reminder> findByIssueId(Long issueId);
 	int countByIssueId(Long issueId);
+	List<Reminder> findNeededReminders(Timestamp today);
+	void deleteReminders(List<Reminder> reminders);
+	void sendReminderNotifications(List<Reminder> reminders);
 }

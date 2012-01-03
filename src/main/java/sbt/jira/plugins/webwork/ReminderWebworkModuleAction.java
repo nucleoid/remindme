@@ -19,7 +19,7 @@ import com.atlassian.jira.web.action.JiraWebActionSupport;
 import com.atlassian.plugin.webresource.WebResourceManager;
 
 public class ReminderWebworkModuleAction extends JiraWebActionSupport
-{
+{	
 	private final IssueService issueService;
 	private final ReminderService reminderService;
     private final JiraAuthenticationContext authenticationContext;
@@ -27,7 +27,7 @@ public class ReminderWebworkModuleAction extends JiraWebActionSupport
     
     private Long id;
     private String assigneeId;
-    private Timestamp reminderDate;
+    private String reminderDate;
     private String comment;
     
     private List<Reminder> currentReminders;
@@ -47,7 +47,14 @@ public class ReminderWebworkModuleAction extends JiraWebActionSupport
     @RequiresXsrfCheck
     protected String doExecute() throws Exception
     {
-        Reminder savedReminder = reminderService.add(getIssue().getId(), getAssigneeId(), getReminderDate(), getComment());
+    	SimpleDateFormat sdf = new SimpleDateFormat("MM/dd/yyyy");
+    	java.util.Date date;
+		try {
+			date = sdf.parse(reminderDate);
+		} catch (ParseException e) {
+			date = Calendar.getInstance().getTime();
+		}
+        Reminder savedReminder = reminderService.add(getIssue().getId(), getAssigneeId(), new Timestamp(date.getTime()), getComment());
 
         if (savedReminder == null || savedReminder.getID() == 0)
             return ERROR;
@@ -112,19 +119,12 @@ public class ReminderWebworkModuleAction extends JiraWebActionSupport
         this.assigneeId = assigneeId;
     }
     
-    public Timestamp getReminderDate() {
+    public String getReminderDate() {
         return reminderDate;
     }
 
     public void setReminderDate(String reminderDate) {
-    	SimpleDateFormat sdf = new SimpleDateFormat("MM/dd/yyyy");
-    	java.util.Date date;
-		try {
-			date = sdf.parse(reminderDate);
-		} catch (ParseException e) {
-			date = Calendar.getInstance().getTime();
-		}
-        this.reminderDate =  new Timestamp(date.getTime());
+    	this.reminderDate = reminderDate;
     }
     
     public String getComment() {
@@ -133,7 +133,7 @@ public class ReminderWebworkModuleAction extends JiraWebActionSupport
 
     public void setComment(String comment) {
         this.comment = comment;
-    }
+    } 
     
     public List<Reminder> getCurrentReminders(){
     	if(currentReminders == null)
@@ -147,7 +147,7 @@ public class ReminderWebworkModuleAction extends JiraWebActionSupport
     
     public String formatTimestamp(Timestamp date){
     	if(date != null)
-    		return new SimpleDateFormat("yyyy/MM/dd").format(date);
+    		return new SimpleDateFormat("MM/dd/yyyy").format(date);
     	return "N/A";
     }
 }

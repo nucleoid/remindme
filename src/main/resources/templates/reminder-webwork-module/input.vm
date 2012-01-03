@@ -21,7 +21,7 @@
             <div id="left-side" style="float: left; margin-top:0;">
             <h4>Current Reminders</h4>
            	#if ($action.displayCurrentReminders)
-		        <table class="aui">
+		        <table id="existing_reminders" class="aui">
 		        	<thead>
 		        		<tr>
 		        			<th id="user">User</th>
@@ -32,7 +32,7 @@
 		        		#foreach ($reminder in $action.currentReminders)
 		        			<tr>
 					            <td headers="user">$reminder.assigneeId</td>
-					            <td headers="remindDate">$!reminder.reminderDate ${action.formatTimestamp($reminder.reminderDate)}</td>
+					            <td headers="remindDate">${action.formatTimestamp($reminder.reminderDate)}</td>
 					        </tr>
 				        #end
 		        	</tbody>
