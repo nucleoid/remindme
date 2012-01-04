@@ -45,10 +45,6 @@
       <decription>Processes @Transactional annotations.</decription>
   </component>
   <component key="reminder-service" name="Reminder Service" class="sbt.jira.plugins.ReminderServiceImpl" />
-  <component key="schedulerComponent" class="sbt.jira.plugins.quartz.QuartzRunner" system="true" public="true">
-      <description>The plugin component that schedules the Reminders.</description>
-      <interface>com.atlassian.sal.api.lifecycle.LifecycleAware</interface>
-  </component>
   <customfield-type key="reminderdisplay" name="Reminder Viewing" class="sbt.jira.plugins.ReminderCFType">
     <description>Calculated type for viewing reminders</description>
     <resource type="velocity" name="view" location="templates/view-reminders.vm"/>
@@ -59,7 +55,13 @@
   <component-import key="mailService" name="Mail Service" interface="com.atlassian.jira.mail.MailService">
       <description>Component to access Mail services functionality from the plugin</description>
   </component-import>
-  <component-import key="jiraScheduler" name="Jira Scheduler Factory" interface="com.atlassian.jira.scheduler.JiraSchedulerFactory">
-      <description>Component to access the Jira Quartz scheduler</description>
+  <component-import key="pluginScheduler">
+      <description>SAL Scheduler</description>
+      <interface>com.atlassian.sal.api.scheduling.PluginScheduler</interface>
   </component-import>
+  <component key="schedulerComponent" class="sbt.jira.plugins.ReminderMonitorImpl" system="true" public="true">
+      <description>The plugin component that schedules the Reminder notifications.</description>
+      <interface>com.atlassian.sal.api.lifecycle.LifecycleAware</interface>
+      <interface>sbt.jira.plugins.ReminderMonitor</interface>
+  </component>
 </atlassian-plugin>

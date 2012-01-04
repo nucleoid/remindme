@@ -95,6 +95,19 @@ public class ReminderServiceImplTest
 	}
 
 	@Test
+	public void testFindById() {
+		Reminder[] preReminders = ao.find(Reminder.class);
+		assertEquals(3, preReminders.length);
+		int firstId = preReminders[0].getID();
+        ao.flushAll();
+        
+        final Reminder reminder = reminderService.findById(firstId);
+        assertNotNull(reminder);
+        assertEquals(firstId, reminder.getID());
+        assertEquals(COMMENT, reminder.getComment());
+	}
+	
+	@Test
 	public void testFindByIssueId() {       
         assertEquals(3, ao.find(Reminder.class).length);
  
@@ -171,6 +184,17 @@ public class ReminderServiceImplTest
         final List<Reminder> reminders = reminderService.findNeededReminders(REMINDER_DATE);
         assertEquals(0, reminders.size());
         assertEquals(1, ao.find(Reminder.class).length);
+	}
+	
+	@Test
+	public void testDeleteReminder() {
+		List<Reminder> allReminders = new ArrayList<Reminder>(Arrays.asList(ao.find(Reminder.class))); 
+		assertEquals(3, allReminders.size());
+		 
+        ao.flushAll();
+        
+        reminderService.deleteReminder(allReminders.get(0));
+        assertEquals(2, ao.find(Reminder.class).length);
 	}
 	
 	@Test

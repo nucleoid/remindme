@@ -29,6 +29,7 @@ public class ReminderWebworkModuleAction extends JiraWebActionSupport
     private String assigneeId;
     private String reminderDate;
     private String comment;
+    private int redminderId;
     
     private List<Reminder> currentReminders;
 
@@ -47,7 +48,7 @@ public class ReminderWebworkModuleAction extends JiraWebActionSupport
     @RequiresXsrfCheck
     protected String doExecute() throws Exception
     {
-    	SimpleDateFormat sdf = new SimpleDateFormat("MM/dd/yyyy");
+		SimpleDateFormat sdf = new SimpleDateFormat("MM/dd/yyyy");
     	java.util.Date date;
 		try {
 			date = sdf.parse(reminderDate);
@@ -58,20 +59,26 @@ public class ReminderWebworkModuleAction extends JiraWebActionSupport
 
         if (savedReminder == null || savedReminder.getID() == 0)
             return ERROR;
-
-        return returnComplete("/browse/" + getIssue().getKey());
+        
+    	return returnComplete("/browse/" + getIssue().getKey());
     }
 
     public String doDefault() throws Exception
     {
-        final Issue issue = getIssueObject();
-        if (issue == null)
-        {
-            return INPUT;
-        }
+    	if(redminderId > 0){
+    		Reminder reminderToDelete = reminderService.findById(redminderId);
+    		reminderService.deleteReminder(reminderToDelete);
+    	}
+    	else{
+    		final Issue issue = getIssueObject();
+            if (issue == null)
+            {
+                return INPUT;
+            }
 
+            includeResources();
+    	}
         includeResources();
-
         return INPUT;
     }
 
@@ -103,6 +110,14 @@ public class ReminderWebworkModuleAction extends JiraWebActionSupport
         return  issueResult.getIssue();
     }
 
+    public int getReminderId() {
+        return redminderId;
+    }
+
+    public void setReminderId(int redminderId) {
+        this.redminderId = redminderId;
+    }
+    
     public Long getId() {
         return id;
     }

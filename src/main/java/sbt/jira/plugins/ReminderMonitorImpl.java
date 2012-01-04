@@ -1,37 +1,40 @@
 package sbt.jira.plugins;
 
 import java.util.Date;
+import java.util.HashMap;
+
+import javax.annotation.PreDestroy;
 
 import com.atlassian.sal.api.lifecycle.LifecycleAware;
 import com.atlassian.sal.api.scheduling.PluginScheduler;
 
-public class ReminderMonitorImpl implements ReminderMonitor, LifecycleAware {
+public class ReminderMonitorImpl implements ReminderMonitor, LifecycleAware 
+{
+	public static final String KEY = ReminderMonitorImpl.class.getName() + ":reminderService";
+	private static final String JOB_NAME = ReminderMonitorImpl.class.getName() + ":job";
+    private final PluginScheduler pluginScheduler;
+    private final ReminderService reminderService;
  
-    /* package */ static final String KEY = ReminderMonitorImpl.class.getName() + ":instance";
-    private static final String JOB_NAME = ReminderMonitorImpl.class.getName() + ":job";
+//    private long interval = 3600000L; //every hour
+    private long interval = 30000L; //every 30 seconds
  
-    private final PluginScheduler pluginScheduler;  // provided by SAL
- 
-    private long interval = 5000L;      // default job interval (5 sec)
- 
-    public ReminderMonitorImpl(PluginScheduler pluginScheduler) {
+    public ReminderMonitorImpl(PluginScheduler pluginScheduler, ReminderService reminderService) {
         this.pluginScheduler = pluginScheduler;
+        this.reminderService = reminderService;
     }
  
-    // declared by LifecycleAware
     public void onStart() {
         reschedule(interval);
     }
  
     public void reschedule(long interval) {
         this.interval = interval;
-         
-//        pluginScheduler.scheduleJob(jobKey, jobClass, jobDataMap, startTime, repeatInterval)
-//        scheduleJob(
-//                JOB_NAME,                   // unique name of the job
-//                ReminderTask.class,     // class of the job
-//                null,                         // data that needs to be passed to the job
-//                new Date(),                 // the time the job is to start
-//                interval);                  // interval between repeats, in milliseconds
+        pluginScheduler.scheduleJob(JOB_NAME, ReminderTask.class, 
+        		new HashMap<String,Object>() {{put(KEY, reminderService);}}, new Date(), interval);
     }
+    
+    @PreDestroy
+	public void Destory(){
+    	pluginScheduler.unscheduleJob(JOB_NAME);
+	}
 }

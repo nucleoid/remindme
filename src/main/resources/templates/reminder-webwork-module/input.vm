@@ -26,13 +26,15 @@
 		        		<tr>
 		        			<th id="user">User</th>
 		        			<th id="remindDate">Reminder Date</th>
+		        			<th id="deleteLink"></th>
 		        		</tr>
 		        	</thead>
 		        	<tbody>
 		        		#foreach ($reminder in $action.currentReminders)
-		        			<tr>
+		        			<tr id="existing_reminder_$reminder.iD">
 					            <td headers="user">$reminder.assigneeId</td>
 					            <td headers="remindDate">${action.formatTimestamp($reminder.reminderDate)}</td>
+					            <td headers="deleteLink"><a id="existing_reminder_link_$reminder.iD" class="remindaction-delete-reminder" href="$req.contextPath/secure/ReminderWebworkModuleAction!default.jspa?redminderId=$reminder.iD" title="Delete this reminder"> x</a></td>
 					        </tr>
 				        #end
 		        	</tbody>

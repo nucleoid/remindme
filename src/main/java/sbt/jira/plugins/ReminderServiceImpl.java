@@ -51,6 +51,11 @@ public class ReminderServiceImpl implements ReminderService
 	}
 
 	@Override
+	public Reminder findById(int id) {
+		return ao.get(Reminder.class, id);
+	}
+	
+	@Override
 	public List<Reminder> findByIssueId(Long issueId) {
 		return new ArrayList<Reminder>(Arrays.asList(ao.find(Reminder.class, Query.select().where("issue_id = ?", issueId))));
 	}
@@ -66,7 +71,7 @@ public class ReminderServiceImpl implements ReminderService
 		List<Reminder> toDeletes = new ArrayList<Reminder>();
 		for(Reminder reminder : reminders) {
 			Issue issue = issueManager.getIssueObject(reminder.getIssueId());
-			if(issue == null || issue.getStatusObject().getName() == CLOSED || issue.getStatusObject().getName() == RESOLVED) {
+			if(issue == null || issue.getStatusObject().getName().equals(CLOSED) || issue.getStatusObject().getName().equals(RESOLVED)) {
 				toDeletes.add(reminder);
 			}
 		}
@@ -77,6 +82,11 @@ public class ReminderServiceImpl implements ReminderService
 		return reminders;
 	}
 
+	@Override
+	public void deleteReminder(Reminder reminder) {
+		ao.delete(reminder);
+	}
+	
 	@Override
 	public void deleteReminders(List<Reminder> reminders) {
 		Reminder[] reminderArr = new Reminder[reminders.size()];

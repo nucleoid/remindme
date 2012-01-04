@@ -9,16 +9,10 @@ import sbt.jira.plugins.entities.Reminder;
 
 import com.atlassian.sal.api.scheduling.PluginJob;
 
-public class ReminderTask implements PluginJob 
-{
-	private ReminderService reminderService;
-	
-	public ReminderTask(ReminderService reminderService) {
-		this.reminderService = reminderService;
-	}
-
+public class ReminderTask implements PluginJob {
 	@Override
 	public void execute(Map<String, Object> jobDataMap) {
+		final ReminderService reminderService = (ReminderService)jobDataMap.get(ReminderMonitorImpl.KEY);
 		Timestamp currentTimestamp =  new Timestamp(Calendar.getInstance().getTime().getTime());
 		List<Reminder> reminders = reminderService.findNeededReminders(currentTimestamp);
 		reminderService.sendReminderNotifications(reminders);

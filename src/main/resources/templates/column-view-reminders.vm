@@ -3,4 +3,4 @@
 #else
 #set ($displayValue = 'N/A')
 #end
-<p class="reminders">$!displayValue</p>
+<a class="issueaction-remind-issue" href="$req.contextPath/secure/ReminderWebworkModuleAction!default.jspa?id=$issue.getId()" title="Email a reminder about this issue"><p class="reminders">$!displayValue</p></a>
