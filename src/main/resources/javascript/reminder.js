@@ -6,14 +6,20 @@ AJS.$(function () {
             return AJS.$.trim(AJS.$("#key-val").text());
         }
     };
-    var updateReminderCount = function(startCount){
+    var updateReminderCount = function(startCount, dialog){
     	var $remindersContainer = AJS.$("#issuerow" + JIRA.IssueNavigator.getSelectedIssueId() + " td p.reminders, #reminders-val" );
         $remindersContainer.html("");
         var reminderCount = startCount;
-        var existingReminderRows = this.getContentArea().find("table#existing_reminders tr");
+        var existingReminderRows;
+        try{
+        	existingReminderRows = dialog.getContentArea().find("table#existing_reminders tr");
+        } catch(err) {
+        	existingReminderRows = null;
+        }
         if(existingReminderRows){
         	existingReminderRows.each(function(){
-            	reminderCount++;
+        		if(AJS.$(this).attr("id"))
+        			reminderCount++;
             });
         }
         $remindersContainer.html(reminderCount);
@@ -24,7 +30,7 @@ AJS.$(function () {
         ajaxOptions: JIRA.Dialogs.getDefaultAjaxOptions,
         width: 625,
         onSuccessfulSubmit : function(){ 
-        	updateReminderCount(1);
+        	updateReminderCount(1, this);
         },
         onDialogFinished : function(){ 
             if (JIRA.IssueNavigator.isNavigator()){
@@ -43,7 +49,17 @@ AJS.$(function () {
     		AJS.$.post(url, {reminderId: reminderIdToDelete}, function() {
     			var $reminderTr = AJS.$("tr#existing_reminder_" +reminderIdToDelete);
 	            $reminderTr.remove();
-	            updateReminderCount(0);
+	            var existingReminderRows = JIRA.Dialogs.remindIssue.getContentArea().find("table#existing_reminders tr");
+	            if(existingReminderRows){
+	            	var hasRows = false;
+	            	existingReminderRows.each(function(){
+	            		if(AJS.$(this).attr("id"))
+	            			hasRows = true;
+	                });
+	            	if(!hasRows)
+	            		AJS.$("table#existing_reminders").replaceWith("There are currently no reminders <br />associated with this issue.")
+	            }
+	            updateReminderCount(0, JIRA.Dialogs.remindIssue);
 			});
     	}
     });

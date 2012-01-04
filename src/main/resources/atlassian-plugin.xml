@@ -6,15 +6,15 @@
     <version>${project.version}</version>
     <vendor name="${project.organization.name}" url="${project.organization.url}"/>
   </plugin-info>
-  <ao key="ao-module">
-    <description>The module configuring the Active Objects service used by this plugin</description>
+  <ao key="ao-module" name="Active Objects module">
+    <description>The module configuring the Active Objects service</description>
     <entity>sbt.jira.plugins.entities.Reminder</entity>
   </ao>
   <component-import key="ao" name="Active Objects service" interface="com.atlassian.activeobjects.external.ActiveObjects">
-      <description>Component to access Active Objects functionality from the plugin</description>
+      <description>Component to access Active Objects functionality</description>
   </component-import>
-  <webwork1 key="reminder-webwork-module" name="Reminder Webwork Module" i18n-name-key="reminder-webwork-module.name">
-    <description key="reminder-webwork-module.description">The Reminder Webwork Module Plugin</description>
+  <webwork1 key="reminder-webwork-module" name="Reminder Webwork Module" >
+    <description>Reminder Webwork module for processing reminder forms</description>
     <actions>
       <action name="sbt.jira.plugins.webwork.ReminderWebworkModuleAction" alias="ReminderWebworkModuleAction">
         <view name="input">/templates/reminder-webwork-module/input.vm</view>
@@ -23,18 +23,21 @@
     </actions>
   </webwork1>
   <resource type="i18n" name="i18n" location="atlassian-plugin"/>
-  <web-item name="Remind Me Item" i18n-name-key="remind-me-item.name" key="remind-me-item" section="operations-top-level" weight="15">
-    <description key="remind-me-item.description">The Remind Me Item Plugin</description>
+  <web-item name="Remind Me Item" key="remind-me-item" section="operations-top-level" weight="15">
+    <description>The Reminder Issue menu button</description>
     <styleClass>issueaction-remind-issue</styleClass>
     <label key="remind-me-item.label"></label>
     <link linkId="remind-me-item-link">/secure/ReminderWebworkModuleAction!default.jspa?id=${issue.id}</link>
     <tooltip key="remind-me-item.tooltip"></tooltip>
+    <condition class="com.atlassian.jira.plugin.webfragment.conditions.UserLoggedInCondition"/>
+    <condition class="com.atlassian.jira.plugin.webfragment.conditions.IsIssueUnresolvedCondition"/>
+    <condition class="com.atlassian.jira.plugin.webfragment.conditions.SmtpMailServerConfiguredCondition"/>
   </web-item>
-  <web-resource name="My Web Resource" i18n-name-key="my-web-resource.name" key="my-web-resource">
+  <web-resource name="Reminder js resource" key="my-web-resource">
   	<transformation extension="js">
             <transformer key="jsI18n"/>
         </transformation>
-    <description key="my-web-resource.description">The My Web Resource Plugin</description>
+    <description>Reminder js resource</description>
     <resource name="reminder.js" type="download" location="javascript/reminder.js">
       <param name="content-type" value="text/javascript"/>
     </resource>
@@ -42,10 +45,12 @@
     <context>atl.general</context>
   </web-resource>
   <component key="tx-processor" name="Transactional Annotation Processor" class="com.atlassian.activeobjects.external.TransactionalAnnotationProcessor">
-      <decription>Processes @Transactional annotations.</decription>
+  	<description>Processes @Transactional annotations</description>
   </component>
-  <component key="reminder-service" name="Reminder Service" class="sbt.jira.plugins.ReminderServiceImpl" />
-  <customfield-type key="reminderdisplay" name="Reminder Viewing" class="sbt.jira.plugins.ReminderCFType">
+  <component key="reminder-service" name="Reminder Service" class="sbt.jira.plugins.ReminderServiceImpl">
+  	<description>Contains most of the important reminder logic.</description>
+  </component>
+  <customfield-type key="reminderdisplay" name="Reminder Viewing custom field" class="sbt.jira.plugins.ReminderCFType">
     <description>Calculated type for viewing reminders</description>
     <resource type="velocity" name="view" location="templates/view-reminders.vm"/>
     <resource type="velocity" name="column-view" location="templates/column-view-reminders.vm"/>
@@ -53,14 +58,14 @@
     <resource type="velocity" name="xml" location="templates/xml-reminders.vm"/>
   </customfield-type>
   <component-import key="mailService" name="Mail Service" interface="com.atlassian.jira.mail.MailService">
-      <description>Component to access Mail services functionality from the plugin</description>
+      <description>Component to access Mail services functionality</description>
   </component-import>
-  <component-import key="pluginScheduler">
-      <description>SAL Scheduler</description>
+  <component-import key="pluginScheduler" name="Plugin scheduler service">
+      <description>SAL plugin scheduler</description>
       <interface>com.atlassian.sal.api.scheduling.PluginScheduler</interface>
   </component-import>
-  <component key="schedulerComponent" class="sbt.jira.plugins.ReminderMonitorImpl" system="true" public="true">
-      <description>The plugin component that schedules the Reminder notifications.</description>
+  <component key="schedulerComponent" name="Reminder scheduler component" class="sbt.jira.plugins.ReminderMonitorImpl" system="true" public="true">
+      <description>Component that schedules the Reminder notifications.</description>
       <interface>com.atlassian.sal.api.lifecycle.LifecycleAware</interface>
       <interface>sbt.jira.plugins.ReminderMonitor</interface>
   </component>
