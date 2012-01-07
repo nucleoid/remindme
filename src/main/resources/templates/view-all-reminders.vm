@@ -4,5 +4,5 @@
 #else
 #set ($displayValue = 'N/A')
 #end
-<a class="issueaction-remind-issue" href="$req.contextPath/secure/ReminderWebworkModuleAction!default.jspa?id=$issue.getId()" title="Email a reminder about this issue"><span id="reminders-val" class="value">$!displayValue</span></a>
+<span id="reminders-val" class="value">$!displayValue</span>
 #controlFooter ($action $fieldLayoutItem.fieldDescription $fieldLayoutItem.required $displayParameters.noHeader)

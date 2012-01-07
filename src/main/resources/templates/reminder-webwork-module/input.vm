@@ -57,18 +57,25 @@
 						#userPicker($action "assigneeId" "" false $null " width: 30%;" true 10)
 					</div>
                 </div>
-                <div class="field-group">
-                	<label for="reminderDate">
-                        Reminder Date
-                        <span class="aui-icon icon-required"></span>
-                    </label>
-    				<input class="text medium-field form-field-datepicker" id="reminderDate" name="reminderDate" type="text" value="#esc($!reminderDate)" />
-    				<img id="reminderDate_trigger" src="/jira/images/icons/cal.gif" width="16" height="16" border="0" alt="Pick a date"/>
-                </div>
-                
+				<div class="field-group aui-field-datepicker">
+					<fieldset class="hidden datepicker-params">
+						<input title="firstDay" type="hidden" value="0" />
+	                	<input title="inputField" type="hidden" value="reminderDate" />
+				        <input title="button" type="hidden" value="reminderDate-trigger" />
+				        <input title="align" type="hidden" value="Br" />
+				        <input title="singleClick" type="hidden" value="true" />
+				        <input title="useISO8601WeekNumbers" type="hidden" value="false" />
+				        <input title="ifFormat" type="hidden" value="%m/%d/%Y" />
+				    </fieldset>
+					<label for="reminderDate">Reminder Date</label>
+					<input type="text" value="" name="reminderDate" id="reminderDate" class="text medium-field">
+					<a title="Select a date" id="reminderDate-trigger" href="#">
+						<span class="aui-icon icon-date">Select a date</span>
+					</a>
+				</div>
                 <div class="field-group">
                     <label for="comment">
-                        Comment
+                        Note
                         <span class="aui-icon"></span>
                     </label>
                     <textarea id="comment" name="comment"></textarea>
@@ -84,17 +91,6 @@
             </div>
         </div>
     </form>
-    <script type="text/javascript">
-    	Calendar.setup({
-			firstDay : 0,
-			inputField : 'reminderDate',
-			button : 'reminderDate_trigger',
-			align : 'Br',
-			singleClick : true,
-			useISO8601WeekNumbers : false,
-			ifFormat : '%m/%d/%Y'
-		});
-    </script>
 #else
 <div class="remove-me">
     <h1>${action.getText('common.words.error')}</h1>

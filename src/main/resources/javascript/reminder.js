@@ -60,7 +60,7 @@ AJS.$(function () {
 	            		AJS.$("table#existing_reminders").replaceWith("There are currently no reminders <br />associated with this issue.")
 	            }
 	            updateReminderCount(0, JIRA.Dialogs.remindIssue);
-			});
+		});
     	}
     });
 });

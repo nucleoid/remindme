@@ -1,0 +1,46 @@
+#parse("templates/email/html/includes/emailconstants.vm")
+#parse("templates/email/html/includes/header.vm")
+<tr valign="top">
+    <td id="email-banner" style="padding:32px 32px 0 32px;">
+
+        #set ($assignee = "#authorlink2($issue.assigneeUser.name $linkstyle)")
+
+        #set ($issueType = $issue.getIssueTypeObject())
+
+        #set ($issueLink = "#renderIcon(${issueType.iconUrlHtml} ${issueType.getName()}) <a style='color:${textLinkColour};text-decoration:none;' href='${baseurl}/browse/${issue.getKey()}'>$issue.getKey()</a>")
+
+        <table align="left" border="0" cellpadding="0" cellspacing="0" width="100%" style="width:100%;">
+		    <tr valign="top">
+		        <td style="color:${textSubtleColour};font-family:${textFontFamily};padding:0;">
+		            <div id="email-action" style="padding: 0 0 8px 0;font-size:12px;line-height:18px;">
+		            	Jira is reminding you of $issueLink
+		            </div>
+		            <div id="email-summary" style="font-size:16px;line-height:20px;padding:2px 0 16px 0;">
+		                <a style="color:${textLinkColour};text-decoration:none;" href="${baseurl}/browse/${issue.getKey()}"><strong>$textutils.htmlEncode($issue.getSummary())</strong></a>
+		            </div>
+		        </td>
+		    </tr>
+		</table>
+    </td>
+</tr>
+#if ($issue && $reminder)
+<tr valign="top">
+    <td id="email-fields" style="padding:0 32px 32px 32px;">
+        <table border="0" cellpadding="0" cellspacing="0" style="padding:0;text-align:left;width:100%;" width="100%">
+            <tr valign="top">
+                <td id="email-gutter" style="width:64px;white-space:nowrap;"></td>
+                <td>
+                    <table border="0" cellpadding="0" cellspacing="0" width="100%">
+                        <tr valign="top">
+						    <td colspan="2" style="color:${textColour};font-family:${textFontFamily};font-size:${textSize};padding:0 0 16px 0;width:100%;">
+						        <div class="comment-block" style="background-color:${commentBackground};border:1px solid #dddddd;color:${textColour};padding:12px;">${reminder.getComment()}</div>
+						    </td>
+						</tr>
+                    </table>
+                </td>
+            </tr>
+        </table>
+    </td>
+</tr>
+#end
+#parse("templates/email/html/includes/footer.vm")

@@ -3,13 +3,15 @@ package it;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
-import static org.mockito.Matchers.*;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 
 import net.java.ao.EntityManager;
 import net.java.ao.test.jdbc.Data;
@@ -30,8 +32,10 @@ import com.atlassian.activeobjects.test.TestActiveObjects;
 import com.atlassian.crowd.embedded.api.User;
 import com.atlassian.jira.issue.IssueManager;
 import com.atlassian.jira.issue.MutableIssue;
+import com.atlassian.jira.issue.resolution.Resolution;
 import com.atlassian.jira.issue.status.Status;
-import com.atlassian.jira.security.JiraAuthenticationContext;
+import com.atlassian.jira.mail.MailService;
+import com.atlassian.jira.notification.NotificationRecipient;
 import com.atlassian.jira.user.util.UserManager;
 import com.atlassian.jira.util.I18nHelper;
 import com.atlassian.mail.Email;
@@ -56,7 +60,7 @@ public class ReminderServiceImplTest
 	private ActiveObjects ao;
 	private IssueManager issueManager;
 	private UserManager userManager;
-	private JiraAuthenticationContext authenticationContext;
+	private MailService mailService;
 	private ReminderServiceImpl reminderService;
 	
 	@Before
@@ -65,8 +69,8 @@ public class ReminderServiceImplTest
 		ao = new TestActiveObjects(entityManager);
 		issueManager = mock(IssueManager.class);
 		userManager = mock(UserManager.class);
-		authenticationContext = mock(JiraAuthenticationContext.class);
-		reminderService = new ReminderServiceImpl(ao, issueManager, userManager, authenticationContext);
+		mailService = mock(MailService.class);
+		reminderService = new ReminderServiceImpl(ao, issueManager, userManager, mailService);
 	}
 
 	@After
@@ -135,15 +139,12 @@ public class ReminderServiceImplTest
 	public void testFindNeededRemindersWithNeeded() {
 		assertEquals(3, ao.find(Reminder.class).length);
 		MutableIssue issue = mock(MutableIssue.class);
-		Status status = mock(Status.class);
-		when(status.getName()).thenReturn("Open");
-		when(issue.getStatusObject()).thenReturn(status);
+		when(issue.getResolutionObject()).thenReturn(null);
 		when(issueManager.getIssueObject(ISSUE_ID)).thenReturn(issue);
 		
 		MutableIssue issue2 = mock(MutableIssue.class);
-		Status status2 = mock(Status.class);
-		when(status2.getName()).thenReturn("Closed");
-		when(issue2.getStatusObject()).thenReturn(status2);
+		Resolution resolution = mock(Resolution.class);
+		when(issue2.getResolutionObject()).thenReturn(resolution);
 		when(issueManager.getIssueObject(ISSUE_ID2)).thenReturn(issue2);
 		
         ao.flushAll();
@@ -160,24 +161,8 @@ public class ReminderServiceImplTest
 	public void testFindNeededRemindersWithResolved() {
 		assertEquals(3, ao.find(Reminder.class).length);
 		MutableIssue issue = mock(MutableIssue.class);
-		Status status = mock(Status.class);
-		when(status.getName()).thenReturn("Resolved");
-		when(issue.getStatusObject()).thenReturn(status);
-		when(issueManager.getIssueObject(ISSUE_ID)).thenReturn(issue);
-        ao.flushAll();
-        
-        final List<Reminder> reminders = reminderService.findNeededReminders(REMINDER_DATE);
-        assertEquals(0, reminders.size());
-        assertEquals(1, ao.find(Reminder.class).length);
-	}
-	
-	@Test
-	public void testFindNeededRemindersWithClosed() {
-		assertEquals(3, ao.find(Reminder.class).length);
-		MutableIssue issue = mock(MutableIssue.class);
-		Status status = mock(Status.class);
-		when(status.getName()).thenReturn("Closed");
-		when(issue.getStatusObject()).thenReturn(status);
+		Resolution resolution = mock(Resolution.class);
+		when(issue.getResolutionObject()).thenReturn(resolution);
 		when(issueManager.getIssueObject(ISSUE_ID)).thenReturn(issue);
         ao.flushAll();
         
@@ -214,18 +199,12 @@ public class ReminderServiceImplTest
 		assertEquals(3, ao.find(Reminder.class).length);
 		MailServerManager serverManager = mock(MailServerManager.class);
 		SMTPMailServer smtpServer = mock(SMTPMailServer.class);
+		final String fromEmail = "me@mail.com";
+		when(smtpServer.getDefaultFrom()).thenReturn(fromEmail);
 		when(serverManager.getDefaultSMTPMailServer()).thenReturn(smtpServer);
 		MailFactory.setServerManager(serverManager);
 		
 		final String issueKey = "ASDF-1";
-		
-		I18nHelper helper = mock(I18nHelper.class);
-		final String subject = "email subject!";
-		when(helper.getText("reminder.email.subject")).thenReturn(subject);
-		final String body = String.format("Reminder for <a href='browse/ASDF-1'>ASDF-1</a> Comment: %s", COMMENT);
-		when(helper.getText("reminder.email.body", issueKey, COMMENT)).thenReturn(body);
-		when(authenticationContext.getI18nHelper()).thenReturn(helper);
-		
 		List<Reminder> reminders = reminderService.findByIssueId(ISSUE_ID2);
 		
 		User user = mock(User.class);
@@ -240,47 +219,22 @@ public class ReminderServiceImplTest
 		ao.flushAll();
 		reminderService.sendReminderNotifications(reminders);
 		
+		ArgumentCaptor<User> from = ArgumentCaptor.forClass(User.class);
+		ArgumentCaptor<NotificationRecipient> recipient = ArgumentCaptor.forClass(NotificationRecipient.class);
+		ArgumentCaptor<String> subjectTemplate = ArgumentCaptor.forClass(String.class);
+		ArgumentCaptor<String> bodyTemplate = ArgumentCaptor.forClass(String.class);
 		ArgumentCaptor<Email> argument = ArgumentCaptor.forClass(Email.class);
+		ArgumentCaptor<Map<String, Object>> context = new ArgumentCaptor<Map<String, Object>>();
 
-		verify(smtpServer).send(argument.capture());
-		assertEquals(userEmail, argument.getValue().getTo());
-		assertEquals(subject, argument.getValue().getSubject());
-		assertEquals(body, argument.getValue().getBody());
+		verify(mailService).sendRenderedMail(from.capture(), recipient.capture(), subjectTemplate.capture(), bodyTemplate.capture(), context.capture());
+		
+		assertEquals(fromEmail, from.getValue().getEmailAddress());
+		assertEquals(userEmail, recipient.getValue().getEmail());
+		assertEquals(ReminderServiceImpl.SUBJECT_TEMPLATE, subjectTemplate.getValue());
+		assertEquals(ReminderServiceImpl.BODY_TEMPLATE, bodyTemplate.getValue());
+		assertNotNull(context.getValue().get("issue"));
+		assertNotNull(context.getValue().get("reminder"));
 		assertEquals(2, ao.find(Reminder.class).length);
-	}
-	
-	@Test
-	public void testSendReminderNotificationsWithMailException() throws MailException {
-		MailServerManager serverManager = mock(MailServerManager.class);
-		SMTPMailServer smtpServer = mock(SMTPMailServer.class);
-		when(serverManager.getDefaultSMTPMailServer()).thenReturn(smtpServer);
-		MailFactory.setServerManager(serverManager);
-		
-		final String issueKey = "ASDF-1";
-		
-		I18nHelper helper = mock(I18nHelper.class);
-		final String subject = "email subject!";
-		when(helper.getText("reminder.email.subject")).thenReturn(subject);
-		final String body = String.format("Reminder for <a href='browse/ASDF-1'>ASDF-1</a> Comment: %s", COMMENT);
-		when(helper.getText("reminder.email.body", issueKey, COMMENT)).thenReturn(body);
-		when(authenticationContext.getI18nHelper()).thenReturn(helper);
-		
-		List<Reminder> reminders = reminderService.findByIssueId(ISSUE_ID2);
-		
-		User user = mock(User.class);
-		final String userEmail = "mitch@pragmaticcoder.com"; 
-		when(user.getEmailAddress()).thenReturn(userEmail);
-		when(userManager.getUserObject(ASSIGNEE_ID2)).thenReturn(user);
-		
-		MutableIssue issue = mock(MutableIssue.class);
-		when(issue.getKey()).thenReturn(issueKey);
-		when(issueManager.getIssueObject(ISSUE_ID2)).thenReturn(issue);
-		
-		doThrow(new MailException()).when(smtpServer).send(any(Email.class));
-		
-		reminderService.sendReminderNotifications(reminders);
-
-		assertEquals(3, ao.find(Reminder.class).length);
 	}
 	
 	public static class ReminderServiceImplTestDatabaseUpdater implements DatabaseUpdater

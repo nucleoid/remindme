@@ -23,7 +23,9 @@
     </actions>
   </webwork1>
   <resource type="i18n" name="i18n" location="atlassian-plugin"/>
-  <web-item name="Remind Me Item" key="remind-me-item" section="operations-top-level" weight="15">
+  <resource type="velocity" name="emailBodyTemplate" location="templates/email/html/reminder-email-body.vm"/>
+  <resource type="velocity" name="emailSubjectTemplate" location="templates/email/subject/reminder-email-subject.vm"/>
+  <web-item name="Remind Me Item" key="remind-me-item" section="operations-work" weight="15">
     <description>The Reminder Issue menu button</description>
     <styleClass>issueaction-remind-issue</styleClass>
     <label key="remind-me-item.label"></label>
