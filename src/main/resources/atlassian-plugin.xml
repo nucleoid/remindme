@@ -59,9 +59,6 @@
     <resource type="velocity" name="edit" location="templates/view-all-reminders.vm"/>
     <resource type="velocity" name="xml" location="templates/xml-reminders.vm"/>
   </customfield-type>
-  <component-import key="mailService" name="Mail Service" interface="com.atlassian.jira.mail.MailService">
-      <description>Component to access Mail services functionality</description>
-  </component-import>
   <component-import key="pluginScheduler" name="Plugin scheduler service">
       <description>SAL plugin scheduler</description>
       <interface>com.atlassian.sal.api.scheduling.PluginScheduler</interface>

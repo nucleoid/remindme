@@ -15,8 +15,8 @@ public class ReminderMonitorImpl implements ReminderMonitor, LifecycleAware
     private final PluginScheduler pluginScheduler;
     private final ReminderService reminderService;
  
-//    private long interval = 3600000L; //every hour
-    private long interval = 30000L; //every 30 seconds
+    private long interval = 3600000L; //every hour
+//    private long interval = 30000L; //every 30 seconds
  
     public ReminderMonitorImpl(PluginScheduler pluginScheduler, ReminderService reminderService) {
         this.pluginScheduler = pluginScheduler;
