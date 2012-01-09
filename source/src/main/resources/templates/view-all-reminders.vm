@@ -1,8 +1,0 @@
-#controlHeader ($action $customField.id $customField.name $fieldLayoutItem.required $displayParameters.noHeader)
-#if($value && ! $value.equals(""))
-#set ($displayValue = ${value})
-#else
-#set ($displayValue = 'N/A')
-#end
-<span id="reminders-val" class="value">$!displayValue</span>
-#controlFooter ($action $fieldLayoutItem.fieldDescription $fieldLayoutItem.required $displayParameters.noHeader)
