@@ -6,6 +6,7 @@
     <version>${project.version}</version>
     <vendor name="${project.organization.name}" url="${project.organization.url}"/>
   </plugin-info>
+  <!-- Reminder plugin components-->
   <ao key="ao-module" name="Active Objects module">
     <description>The module configuring the Active Objects service</description>
     <entity>sbt.jira.plugins.entities.Reminder</entity>
@@ -37,8 +38,8 @@
   </web-item>
   <web-resource name="Reminder js resource" key="my-web-resource">
   	<transformation extension="js">
-            <transformer key="jsI18n"/>
-        </transformation>
+        <transformer key="jsI18n"/>
+    </transformation>
     <description>Reminder js resource</description>
     <resource name="reminder.js" type="download" location="javascript/reminder.js">
       <param name="content-type" value="text/javascript"/>
@@ -68,4 +69,42 @@
       <interface>com.atlassian.sal.api.lifecycle.LifecycleAware</interface>
       <interface>sbt.jira.plugins.ReminderMonitor</interface>
   </component>
+  
+  <!-- Admin plugin components -->
+  <webwork1 key="admin-webwork-module" name="Admin Webwork Module" >
+    <description>Admin Webwork module for processing reminder admin forms</description>
+    <actions>
+      <action name="sbt.jira.plugins.webwork.AdminWebworkModuleAction" alias="AdminWebworkModuleAction">
+        <view name="input">/templates/admin-webwork-module/input.vm</view>
+        <view name="success">/templates/admin-webwork-module/input.vm</view>
+        <view name="error">/templates/admin-webwork-module/input.vm</view>
+        <view name="login">/login.jsp?permissionViolation=true&amp;os_destination=%2Fsecure%2FAdminWebworkModuleAction%21default%2Ejspa</view> 
+      </action>
+    </actions>
+  </webwork1>
+  <web-resource name="Admin js resource" key="admin-web-resource">
+    <transformation extension="js">
+        <transformer key="jsI18n"/>
+    </transformation>
+    <description>Admin js resource</description>
+    <resource type="download" name="admin.js" location="javascript/admin.js">
+      <param name="content-type" value="text/javascript"/>
+    </resource> 
+    <dependency>com.atlassian.auiplugin:ajs</dependency>
+    <context>atl.admin</context>
+  </web-resource>
+  <component-import key="pluginSettingsFactory" name="Plugin Settings Factory">
+  	<description>Component to store Reminder admin configuration settings</description>
+  	<interface>com.atlassian.sal.api.pluginsettings.PluginSettingsFactory</interface>
+  </component-import>
+  <web-section key="reminder_admin_section" location="admin_plugins_menu" name="Reminder Admin Menu Section Label">
+    <description>Label for the reminder admin plugin menu section</description>
+    <label key="reminder.admin.section.name" />
+  </web-section>
+  <web-item key="jira-menu-item" name="Reminder Admin" section="admin_plugins_menu/reminder_admin_section" weight="1" application="jira">
+    <description>Link to reminder-admin page</description>
+    <label key="reminder.admin.label" />
+    <link linkId="reminder-admin-link">/secure/AdminWebworkModuleAction!default.jspa</link>
+  </web-item>
 </atlassian-plugin>
+ 

@@ -9,7 +9,7 @@
 		    <tr valign="top">
 		        <td style="color:${textSubtleColour};font-family:${textFontFamily};padding:0;">
 		            <div id="email-action" style="padding: 0 0 8px 0;font-size:12px;line-height:18px;">
-		            	Jira is reminding you of $issueLink
+		            	JIRA is reminding you of $issueLink
 		            </div>
 		            <div id="email-summary" style="font-size:16px;line-height:20px;padding:2px 0 16px 0;">
 		                <a style="color:${textLinkColour};text-decoration:none;" href="${baseurl}/browse/${issue.getKey()}"><strong>$textutils.htmlEncode($issue.getSummary())</strong></a>

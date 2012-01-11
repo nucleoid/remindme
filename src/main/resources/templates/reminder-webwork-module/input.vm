@@ -32,7 +32,7 @@
 		        	<tbody>
 		        		#foreach ($reminder in $action.currentReminders)
 		        			<tr id="existing_reminder_$reminder.iD">
-					            <td headers="user">$reminder.assigneeId</td>
+					            <td headers="user">${action.fullNameFromUsername($reminder.assigneeId)}</td>
 					            <td headers="remindDate">${action.formatTimestamp($reminder.reminderDate)}</td>
 					            <td headers="deleteLink"><a id="existing_reminder_link_$reminder.iD" class="remindaction-delete-reminder" href="$req.contextPath/secure/ReminderWebworkModuleAction!default.jspa?redminderId=$reminder.iD" title="Delete this reminder"> x</a></td>
 					        </tr>
@@ -47,14 +47,21 @@
             <div id="right-side" style="float: right; margin-top:0;">
             <fieldset>
                 <legend><span>${action.getText('reminder-webwork-module.remind.details')}</span></legend>
-                
+                #if($action.hasErrorMessages)
+                	#foreach ($error in $action.errorMessages)
+                		<div class="aui-message error"><span class="aui-icon icon-error"></span>$error</div>
+				    #end
+    			#end
                 <div class="field-group">
                 	<label for="assigneeId">
                         Remind Who
                         <span class="aui-icon icon-required"></span>
                     </label>
                 	<div class="ajax_autocomplete" id="assigneeId_container">
-						#userPicker($action "assigneeId" "" false $null " width: 30%;" true 10)
+						#userPicker($action "assigneeId" $action.assigneeId false $null " width: 30%;" true 10)
+						#if($action.hasErrors && ${action.getErrors().get("assigneeId")})
+            				<div class="aui-message error"><span class="aui-icon icon-error"></span>${action.getErrors().get("assigneeId")}</div>
+            			#end
 					</div>
                 </div>
 				<div class="field-group aui-field-datepicker">
@@ -68,10 +75,13 @@
 				        <input title="ifFormat" type="hidden" value="%m/%d/%Y" />
 				    </fieldset>
 					<label for="reminderDate">Reminder Date</label>
-					<input type="text" value="" name="reminderDate" id="reminderDate" class="text medium-field">
+					<input type="text" value="$!action.reminderDate" name="reminderDate" id="reminderDate" class="text medium-field">
 					<a title="Select a date" id="reminderDate-trigger" href="#">
 						<span class="aui-icon icon-date">Select a date</span>
 					</a>
+					#if($action.hasErrors && ${action.getErrors().get("reminderDate")})
+            			<div class="aui-message error"><span class="aui-icon icon-error"></span>${action.getErrors().get("reminderDate")}</div>
+            		#end
 				</div>
                 <div class="field-group">
                     <label for="comment">

@@ -11,10 +11,12 @@ import org.ofbiz.core.entity.GenericValue;
 import sbt.jira.plugins.ReminderService;
 import sbt.jira.plugins.entities.Reminder;
 
+import com.atlassian.crowd.embedded.api.User;
 import com.atlassian.jira.bc.issue.IssueService;
 import com.atlassian.jira.issue.Issue;
 import com.atlassian.jira.security.JiraAuthenticationContext;
 import com.atlassian.jira.security.xsrf.RequiresXsrfCheck;
+import com.atlassian.jira.user.util.UserManager;
 import com.atlassian.jira.web.action.JiraWebActionSupport;
 import com.atlassian.plugin.webresource.WebResourceManager;
 
@@ -24,6 +26,7 @@ public class ReminderWebworkModuleAction extends JiraWebActionSupport
 	private final ReminderService reminderService;
     private final JiraAuthenticationContext authenticationContext;
     private final WebResourceManager webResourceManager;
+    private UserManager userManager;
     
     private Long id;
     private String assigneeId;
@@ -32,23 +35,36 @@ public class ReminderWebworkModuleAction extends JiraWebActionSupport
     private int redminderId;
     
     private List<Reminder> currentReminders;
+    private static final String DATE_FORMAT = "MM/dd/yyyy";
+    private SimpleDateFormat sdf = new SimpleDateFormat(DATE_FORMAT);
 
-    public ReminderWebworkModuleAction(IssueService issueService, JiraAuthenticationContext authenticationContext, WebResourceManager webResourceManager, ReminderService reminderService)
+    public ReminderWebworkModuleAction(IssueService issueService, JiraAuthenticationContext authenticationContext, WebResourceManager webResourceManager, ReminderService reminderService, UserManager userManager)
     {
         this.issueService = issueService;
         this.authenticationContext = authenticationContext;
         this.webResourceManager = webResourceManager;
         this.reminderService = reminderService;
+        this.userManager = userManager;
     }
 
+    @Override
     protected void doValidation()
     {
+    	if (assigneeId == null || assigneeId.length() == 0) 
+    		addError("assigneeId", "Please enter username.");
+        if (reminderDate == null || reminderDate.length() < 1) 
+        	addError("reminderDate", "Please enter a date.");
+        if (assigneeId != null && assigneeId.length() > 0 && userManager.getUserObject(assigneeId) == null) 
+    		addError("assigneeId", "Invalid username.");
+        if (reminderDate != null && reminderDate.length() > 0 && !dateParses(reminderDate)) 
+        	addError("reminderDate", String.format("Invalid date.  (%1s)", DATE_FORMAT));
+        super.doValidation();
     }
 
+    @Override
     @RequiresXsrfCheck
     protected String doExecute() throws Exception
     {
-		SimpleDateFormat sdf = new SimpleDateFormat("MM/dd/yyyy");
     	java.util.Date date;
 		try {
 			date = sdf.parse(reminderDate);
@@ -57,12 +73,16 @@ public class ReminderWebworkModuleAction extends JiraWebActionSupport
 		}
         Reminder savedReminder = reminderService.add(getIssue().getId(), getAssigneeId(), new Timestamp(date.getTime()), getComment());
 
-        if (savedReminder == null || savedReminder.getID() == 0)
-            return ERROR;
+        if (savedReminder == null || savedReminder.getID() == 0){
+        	addErrorMessage("Something went wrong! Reminder not saved.");
+        	return ERROR;
+        }
+            
         
     	return returnComplete("/browse/" + getIssue().getKey());
     }
 
+    @Override
     public String doDefault() throws Exception
     {
     	if(redminderId > 0){
@@ -72,14 +92,19 @@ public class ReminderWebworkModuleAction extends JiraWebActionSupport
     	else{
     		final Issue issue = getIssueObject();
             if (issue == null)
-            {
                 return INPUT;
-            }
-
-            includeResources();
     	}
         includeResources();
         return INPUT;
+    }
+    
+    private boolean dateParses(String date){
+    	try {
+			sdf.parse(date);
+		} catch (ParseException e) {
+			return false;
+		}
+		return true;
     }
 
     private void includeResources() {
@@ -164,5 +189,12 @@ public class ReminderWebworkModuleAction extends JiraWebActionSupport
     	if(date != null)
     		return new SimpleDateFormat("MM/dd/yyyy").format(date);
     	return "N/A";
+    }
+    
+    public String fullNameFromUsername(String username){
+    	User user = userManager.getUserObject(username);
+    	if(user != null)
+    		return user.getDisplayName();
+    	return username;
     }
 }

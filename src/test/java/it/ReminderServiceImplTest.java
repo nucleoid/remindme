@@ -233,10 +233,10 @@ public class ReminderServiceImplTest
 		when(issue.getKey()).thenReturn(issueKey);
 		when(issueManager.getIssueObject(ISSUE_ID2)).thenReturn(issue);
 		
-		String subject = "Jira reminder for ASDF-1";
+		String subject = "JIRA reminder for ASDF-1";
 		String html = "Jira html";
 		String text = "Jira text";
-		when(velocityManager.getEncodedBodyForContent(contains("Jira reminder for"), anyString(), anyMap())).thenReturn(subject);
+		when(velocityManager.getEncodedBodyForContent(contains("JIRA reminder for"), anyString(), anyMap())).thenReturn(subject);
 		when(velocityManager.getEncodedBodyForContent(contains("<table align="), anyString(), anyMap())).thenReturn(html);
 		when(velocityManager.getEncodedBodyForContent(contains("Reminder note:"), anyString(), anyMap())).thenReturn(text);
 		

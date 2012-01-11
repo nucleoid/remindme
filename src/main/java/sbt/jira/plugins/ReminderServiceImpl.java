@@ -64,6 +64,8 @@ public class ReminderServiceImpl implements ReminderService
 		this.authenticationContext = authenticationContext;
 		this.velocityManager = velocityManager;
 		baseUrl = this.applicationProperties.getString(APKeys.JIRA_BASEURL);
+		if(baseUrl != null && !baseUrl.contains("jira"))
+			baseUrl = Path.join(baseUrl, "jira");
 	}
 	
 	@Override
@@ -136,8 +138,7 @@ public class ReminderServiceImpl implements ReminderService
 				context.put("lfbean", lookAndFeelBean);
 				context.put("textutils", new TextUtils());
 				context.put("i18n", authenticationContext.getI18nHelper());
-				String jiraBase = Path.join(baseUrl, "jira");
-				context.put("jiraLogoUrl", Path.join(jiraBase, lookAndFeelBean.getLogoUrl()));
+				context.put("jiraLogoUrl", Path.join(baseUrl, lookAndFeelBean.getLogoUrl()));
 				if(!sendEmail(user, context))
 					toDelete.remove(reminder);
 			}
