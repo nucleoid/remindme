@@ -1,6 +1,0 @@
-#if($value && ! $value.equals(""))
-#set ($displayValue = ${value})
-#else
-#set ($displayValue = 'N/A')
-#end
-$!displayValue
