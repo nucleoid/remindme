@@ -1,0 +1,12 @@
+#set ($issueLink = "${baseurl}/browse/${issue.getKey()}")
+
+JIRA is reminding you of ${issue.getKey()} $issueLink
+
+Issue summary:
+${issue.getSummary()}
+		       
+		           
+#if ($reminder && $reminder.getComment())
+	Reminder note:
+	${reminder.getComment()}					   
+#end

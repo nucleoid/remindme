@@ -1,0 +1,115 @@
+<html>
+<head>
+    <title>$action.getText('reminder-webwork-module.reminder.issue')</title>
+    #if (${action.issueObject})
+        <meta name="decorator" content="issueaction" />
+    #else
+        <meta name="decorator" content="message" />
+    #end
+</head>
+<body>
+#if(${action.issueObject})
+    <form action="ReminderWebworkModuleAction.jspa" class="aui" id="reminder-issue" method="post">
+        <div class="form-body">
+            <div class="hidden">
+                <input name="atl_token" type="hidden" value="${action.xsrfToken}">
+            </div>
+            <h2 class="dialog-title">$action.getText('reminder-webwork-module.remind')<br /><small>$action.getText('reminder-webwork-module.title.description')</small></h2>
+            <div class="hidden">
+                <input name="id" type="hidden" value="${action.id}">
+            </div>
+            <div id="left-side" style="float: left; margin-top:0;">
+            <h4>Current Reminders</h4>
+           	#if ($action.displayCurrentReminders)
+		        <table id="existing_reminders" class="aui">
+		        	<thead>
+		        		<tr>
+		        			<th id="user">User</th>
+		        			<th id="remindDate">Reminder Date</th>
+		        			<th id="deleteLink"></th>
+		        		</tr>
+		        	</thead>
+		        	<tbody>
+		        		#foreach ($reminder in $action.currentReminders)
+		        			<tr id="existing_reminder_$reminder.iD">
+					            <td headers="user">${action.fullNameFromUsername($reminder.assigneeId)}</td>
+					            <td headers="remindDate">${action.formatTimestamp($reminder.reminderDate)}</td>
+					            <td headers="deleteLink"><a id="existing_reminder_link_$reminder.iD" class="remindaction-delete-reminder" href="$req.contextPath/secure/ReminderWebworkModuleAction!default.jspa?redminderId=$reminder.iD" title="Delete this reminder"> x</a></td>
+					        </tr>
+				        #end
+		        	</tbody>
+		        </table>
+			#else
+		        There are currently no reminders <br />
+		        associated with this issue.
+		    #end
+            </div>
+            <div id="right-side" style="float: right; margin-top:0;">
+            <fieldset>
+                <legend><span>${action.getText('reminder-webwork-module.remind.details')}</span></legend>
+                #if($action.hasErrorMessages)
+                	#foreach ($error in $action.errorMessages)
+                		<div class="aui-message error"><span class="aui-icon icon-error"></span>$error</div>
+				    #end
+    			#end
+                <div class="field-group">
+                	<label for="assigneeId">
+                        Remind Who
+                        <span class="aui-icon icon-required"></span>
+                    </label>
+                	<div class="ajax_autocomplete" id="assigneeId_container">
+						#userPicker($action "assigneeId" $action.assigneeId false $null " width: 30%;" true 10)
+						#if($action.hasErrors && ${action.getErrors().get("assigneeId")})
+            				<div class="aui-message error"><span class="aui-icon icon-error"></span>${action.getErrors().get("assigneeId")}</div>
+            			#end
+					</div>
+                </div>
+				<div class="field-group aui-field-datepicker">
+					<fieldset class="hidden datepicker-params">
+						<input title="firstDay" type="hidden" value="0" />
+	                	<input title="inputField" type="hidden" value="reminderDate" />
+				        <input title="button" type="hidden" value="reminderDate-trigger" />
+				        <input title="align" type="hidden" value="Br" />
+				        <input title="singleClick" type="hidden" value="true" />
+				        <input title="useISO8601WeekNumbers" type="hidden" value="false" />
+				        <input title="ifFormat" type="hidden" value="%m/%d/%Y" />
+				    </fieldset>
+					<label for="reminderDate">Reminder Date</label>
+					<input type="text" value="$!action.reminderDate" name="reminderDate" id="reminderDate" class="text medium-field">
+					<a title="Select a date" id="reminderDate-trigger" href="#">
+						<span class="aui-icon icon-date">Select a date</span>
+					</a>
+					#if($action.hasErrors && ${action.getErrors().get("reminderDate")})
+            			<div class="aui-message error"><span class="aui-icon icon-error"></span>${action.getErrors().get("reminderDate")}</div>
+            		#end
+				</div>
+                <div class="field-group">
+                    <label for="comment">
+                        Note
+                        <span class="aui-icon"></span>
+                    </label>
+                    <textarea id="comment" name="comment"></textarea>
+                </div>
+            </fieldset>
+            </div>
+        </div>
+
+        <div class="buttons-container form-footer">
+            <div class="buttons">
+                <input accesskey="s" class="button" id="remind-issue-submit" name="Remind" title="Press Ctrl+Alt+s to submit this form" type="submit" value="Remind">
+                <a accesskey="`" class="cancel" href="/browse/${action.issue.key}" id="remind-issue-cancel" title="Press Ctrl+Alt+` to cancel">Cancel</a>
+            </div>
+        </div>
+    </form>
+#else
+<div class="remove-me">
+    <h1>${action.getText('common.words.error')}</h1>
+    <div class="aui-message error"><span class="aui-icon icon-error"></span>
+        #foreach($message in $action.flushedErrorMessages)
+            <p>$message</p>
+        #end
+    </div>
+</div>
+#end
+</body>
+</html>
